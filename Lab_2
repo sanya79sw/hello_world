@@ -1,0 +1,118 @@
+#include <stdio.h>
+#include <math.h>
+#define N 100
+double x[21];
+double f[21];
+double fapr[2000];
+double Fx(double x)
+{
+	return x*sin(2*x);
+}
+long double fact(int n)
+{
+	int i; long double  q = 1;
+	for (i = 2; i <= n; i++)
+	{
+		q *= i;
+	}
+	return q;
+}
+long double Cnk(int n, int k)
+{
+	long double  res = fact(n) / (fact(k)*fact((n - k)));
+	return res;
+
+}
+long double rr(int n)
+{
+	int one; long double res = 0; int k, i;
+	for (k = 0; k <= n; k++)
+	{
+		one = 1;
+		for (i = 1; i <= n - k; i++)
+		{
+			one *= (-1);
+		}
+		res += Cnk(n, k)*one * f[k];
+	}
+	return res;
+}
+long double tt(double t, int k)
+{
+	if (k == 0) return 1;
+	int i;
+	long double ti = 1;
+
+	for (i = 0; i<k; i++)
+		ti *= (t - (double)i);
+	return ti;
+}
+int q = 0;
+void fappr(int n, double t)
+{
+	int k;
+	double res = 0;
+	fapr[q] = 0;
+	for (k = 0; k<n; k++)
+	{
+		res += rr(k)*tt(t, k) / fact(k);
+	}
+	fapr[q] = res;
+	q++;
+}
+double eps(double f_appr, double f_in) {
+	return fabs(f_in - f_appr);
+}
+int main(int argc, char **argv)
+{
+	int K, i; double a, b;
+	FILE *read = fopen("in.txt", "r");
+	fscanf(read, "%d %le %le\n", &K, &a, &b);
+	for (i = 0; i<K; i++)
+		fscanf(read, "%le %le\n", &x[i], &f[i]);
+	fclose(read);
+
+	FILE *fax = fopen("faprx.txt", "wt");
+	FILE *fay = fopen("fapry.txt", "wt");
+	FILE *feps = fopen("eps.txt", "wt");
+	double h = (b - a) / K;
+	double t; unsigned long int c = 0;
+	for (t = 0; t <= K - 1.0; t += 0.01)
+	{
+		fappr(K, t);
+		fprintf(fax, "%e\n", t);
+		fprintf(fay, "%e\n", fapr[c]);
+		fprintf(feps, "%le\n", eps(fapr[c], Fx(x[0] + t*h)));
+		printf("%lf %lf  %lf\n", Fx(x[0] + t*h), fapr[c], eps(fapr[c], Fx(x[0] + t*h))); c++;
+	}
+	fclose(fax); fclose(fay); fclose(feps);
+	return 0;
+}
+
+#include <stdio.h>
+#include <math.h>
+#define N 100
+double x[N];
+double f[N];
+
+double fx(double x) {
+	return 2*sin(2*x);
+}
+int main(int argc, char **argv)
+{
+	double a = -5, b = 5; int K = 20;
+	double h = (b - a) / K;
+	FILE *file = fopen("in.txt", "wt");
+	FILE *fileX = fopen("inX.txt", "wt");
+	fprintf(file, "%d %le %le\n", K, a, b);
+	x[0] = 0;
+	int i;
+	for (i = 0; i<K; i++)
+	{
+		f[i] = fx(x[i]);
+		x[i + 1] = x[i] + h;
+		fprintf(file, "%le %le\n", x[i], f[i]);
+		fprintf(fileX, "%le\n", x[i]);
+	}
+	printf("Done!");
+}
